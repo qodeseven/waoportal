@@ -133,6 +133,7 @@ if ($LASTEXITCODE -ne 0 -or $installedPackage -notmatch [regex]::Escape("package
 Write-Host "Repeating every $IntervalHours hour(s). Press Ctrl+C to stop."
 Write-Host "Click points: $Click1, $Click2, $Click3"
 
+$firstCycle = $true
 while ($true) {
     # Reapply and verify resolution each cycle in case BlueStacks reset it.
     Invoke-Adb @('shell', 'wm', 'size', $ScreenSize)
@@ -145,22 +146,35 @@ while ($true) {
     Invoke-Adb @('shell', 'monkey', '-p', $GamePackage, '-c', 'android.intent.category.LAUNCHER', '1')
     Wait-ForGameForeground
 
-    if ($startedBlueStacks) {
+    if ($firstCycle -and $startedBlueStacks) {
         Write-Host ''
         Write-Host 'Close any game splash screens, promotions, or purchase screens before continuing.' -ForegroundColor DarkYellow
-        Write-Host 'When the normal game screen is visible, press any key to perform the taps.' -ForegroundColor DarkYellow -NoNewline
+        Write-Host 'When the normal game screen is visible, press any key to continue.' -ForegroundColor DarkYellow -NoNewline
         [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         Write-Host ''
-        $startedBlueStacks = $false
+        $point = $clickPoints[1]
+        Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Startup Click 2: ($($point.X), $($point.Y))"
+        Invoke-Adb @('shell', 'input', 'tap', [string]$point.X, [string]$point.Y)
+        Write-Host 'Waiting 10 seconds before Click 1...'
+        Start-Sleep -Seconds 10
+    }
+    elseif ($firstCycle) {
+        Write-Host 'Change to World View. Press any key when ready to start' -ForegroundColor DarkYellow
+        [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     }
 
     for ($i = 0; $i -lt $clickPoints.Count; $i++) {
         $point = $clickPoints[$i]
         Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Tap $($i + 1): ($($point.X), $($point.Y))"
         Invoke-Adb @('shell', 'input', 'tap', [string]$point.X, [string]$point.Y)
-        if ($i -eq 0) { Start-Sleep -Seconds 3 }
+        if ($i -eq 0) {
+            Write-Host 'Waiting 3 seconds before Click 2...'
+            Start-Sleep -Seconds 3
+        }
     }
 
+    $firstCycle = $false
+    $startedBlueStacks = $false
     $finishedAt = Get-Date
     Write-Host "[$($finishedAt.ToString('yyyy-MM-dd HH:mm:ss'))] Cycle finished. Waiting $IntervalHours hour(s) before the next cycle."
     Start-Sleep -Milliseconds ([int64]($IntervalHours * 3600000))

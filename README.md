@@ -45,7 +45,7 @@ A Mac user can install BlueStacks Air and War and Order to inspect or manually v
 
 ## Run with defaults
 
-The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. If the script had to start BlueStacks, it then pauses for you to close any splash, promotion, or purchase screens. Press any key only after the normal game screen is visible. After each completed tap sequence, it waits one hour before the next cycle. Press **Ctrl+C** to stop.
+The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. If the script started BlueStacks, close any splash, promotion, or purchase screens and press a key at the prompt; it sends Click 2 first to switch to World View, waits 10 seconds, then performs Clicks 1–3. If BlueStacks was already running, the script asks you to change to World View and press a key, then performs Clicks 1–3. It announces and waits 3 seconds between Click 1 and Click 2. After each completed tap sequence, it waits one hour before the next cycle. Press **Ctrl+C** to stop.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1
@@ -78,7 +78,7 @@ The screen size is Android's coordinate space, not the outer Windows window dime
 The three reference screenshots in `auto-monster/screenshots/` are all 1080x1920 and match the configured Android coordinate space:
 
 1. [`screen-1-map.png`](auto-monster/screenshots/screen-1-map.png) is the game map. Tap `(1009,1520)` on the right-side scroll/map control to open the bottom activity panel.
-2. [`screen-2-monster-panel.png`](auto-monster/screenshots/screen-2-monster-panel.png) shows the activity panel with the Monster tab selected. Tap `(114,1821)` on the Auto-Attack monster control to open its settings.
+2. [`screen-2-monster-panel.png`](auto-monster/screenshots/screen-2-monster-panel.png) shows the activity panel with the Monster tab selected. Tap `(114,1821)` on the Auto-Attack monster control to open its settings. On the first cycle only, this is also used as the preparatory World View tap when the script launched BlueStacks.
 3. [`screen-3-auto-attack-dialog.png`](auto-monster/screenshots/screen-3-auto-attack-dialog.png) shows the Auto-Attack settings dialog. Tap `(540,1580)` on **Start Auto-Attack**.
 
 These screenshots document the expected flow but the script currently does not compare live screens against them. They are included as public examples with the owner's approval. A visual screen guard would need to check stable UI regions at each step and stop on a mismatch.
