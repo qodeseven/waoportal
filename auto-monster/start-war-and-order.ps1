@@ -168,7 +168,14 @@ while ($true) {
         [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     }
 
-    for ($i = 0; $i -lt $clickPoints.Count; $i++) {
+    if ($firstCycle) {
+        $cycleClickIndices = @(0, 1, 2)
+    }
+    else {
+        $cycleClickIndices = @(1, 2)
+    }
+
+    foreach ($i in $cycleClickIndices) {
         $point = $clickPoints[$i]
         Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Clicking $($ClickLabels[$i]): ($($point.X), $($point.Y))"
         Invoke-Adb @('shell', 'input', 'tap', [string]$point.X, [string]$point.Y)
@@ -181,6 +188,6 @@ while ($true) {
     $firstCycle = $false
     $startedBlueStacks = $false
     $finishedAt = Get-Date
-    Write-Host "[$($finishedAt.ToString('yyyy-MM-dd HH:mm:ss'))] Cycle finished. Waiting $IntervalHours hour(s) before the next cycle."
+    Write-Host "[$($finishedAt.ToString('yyyy-MM-dd HH:mm:ss'))] Waiting $IntervalHours hour(s) to restart monsters."
     Start-Sleep -Milliseconds ([int64]($IntervalHours * 3600000))
 }
