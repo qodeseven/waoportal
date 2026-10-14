@@ -9,28 +9,31 @@ A Windows PowerShell script that starts BlueStacks 5, sets the Android resolutio
 - War and Order installed in the BlueStacks Android instance
 - War and Order package ID: `com.camelgames.superking` (the script checks that it is installed)
 - Windows PowerShell 5.1 or PowerShell 7+
-- An internet connection and Git to clone the public repository, or download the repository ZIP from GitHub
+- An internet connection; Git is optional because the ZIP can be downloaded directly
 
-## Install
+## Install and run (no Git required)
 
-1. Install BlueStacks 5 and install/sign in to War and Order in its Android instance.
-2. In BlueStacks, open **Settings → Advanced**, enable **Android Debug Bridge**, and save the setting.
-3. Download this repository from GitHub (Code → Download ZIP) and extract it, or clone it with Git:
-
-   ```powershell
-   git clone https://github.com/qodeseven/waoportal.git
-   cd waoportal
-   ```
-
-4. Confirm the BlueStacks installation folder. The default is `C:\Program Files\BlueStacks_nxt`; use `-BlueStacksDir` if yours differs.
-5. In PowerShell, run the script from the extracted/cloned project folder. If Windows blocks a downloaded script, inspect the file and unblock just that file, then run it:
+1. Install BlueStacks 5, then install and sign in to War and Order inside BlueStacks.
+2. In BlueStacks, open **Settings → Advanced**, enable **Android Debug Bridge**, and save.
+3. [Download the project ZIP](https://github.com/qodeseven/waoportal/archive/refs/heads/main.zip).
+4. In File Explorer, open **Downloads**, right-click `main.zip`, and choose **Extract All**. Open the extracted `waoportal-main` folder.
+5. Click the File Explorer address bar, type `powershell`, and press Enter. This opens PowerShell in that folder.
+6. Run the script:
 
    ```powershell
-   Unblock-File .\auto-monster\start-war-and-order.ps1
-   & .\auto-monster\start-war-and-order.ps1
+   & ".\auto-monster\start-war-and-order.ps1"
    ```
 
-   The script does not require administrator privileges. Keep the BlueStacks ADB port accessible only from the local machine.
+   If Windows says the script is blocked, inspect it first, then unblock that file and run it:
+
+   ```powershell
+   Unblock-File ".\auto-monster\start-war-and-order.ps1"
+   & ".\auto-monster\start-war-and-order.ps1"
+   ```
+
+The script does not require administrator privileges. The default BlueStacks folder is `C:\Program Files\BlueStacks_nxt`; if yours differs, pass `-BlueStacksDir 'C:\your\BlueStacks\folder'`. Keep the BlueStacks ADB port accessible only from the local machine. Watch the first cycle to confirm that the game opens and the taps reach the expected screens.
+
+People who already use Git can optionally clone the project with `git clone https://github.com/qodeseven/waoportal.git`.
 
 ## Run with defaults
 
