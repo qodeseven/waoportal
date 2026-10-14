@@ -33,6 +33,11 @@ $ErrorActionPreference = 'Stop'
 $Adb = Join-Path $BlueStacksDir 'HD-Adb.exe'
 $Player = Join-Path $BlueStacksDir 'HD-Player.exe'
 $GamePackage = 'com.camelgames.superking'
+$ClickLabels = @(
+    'Monster Menu Button',
+    'World/Castle View Button',
+    'Auto Monster Start Button'
+)
 
 function Convert-ClickPoint([string] $Value, [string] $Name) {
     if ($Value -notmatch '^(\d+)x(\d+)$') {
@@ -131,7 +136,7 @@ if ($LASTEXITCODE -ne 0 -or $installedPackage -notmatch [regex]::Escape("package
 }
 
 Write-Host "Repeating every $IntervalHours hour(s). Press Ctrl+C to stop."
-Write-Host "Click points: $Click1, $Click2, $Click3"
+Write-Host "Click points: $($ClickLabels[0]) $Click1, $($ClickLabels[1]) $Click2, $($ClickLabels[2]) $Click3"
 
 $firstCycle = $true
 while ($true) {
@@ -153,22 +158,22 @@ while ($true) {
         [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
         Write-Host ''
         $point = $clickPoints[1]
-        Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Startup Click 2: ($($point.X), $($point.Y))"
+        Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Startup click: $($ClickLabels[1]) ($($point.X), $($point.Y))"
         Invoke-Adb @('shell', 'input', 'tap', [string]$point.X, [string]$point.Y)
-        Write-Host 'Waiting 10 seconds before Click 1...'
+        Write-Host 'Waiting 10 seconds before clicking Monster Menu Button...'
         Start-Sleep -Seconds 10
     }
     elseif ($firstCycle) {
-        Write-Host 'Change to World View. Press any key when ready to start' -ForegroundColor DarkYellow
+        Write-Host 'Change to World/Castle View. Press any key when ready to start' -ForegroundColor DarkYellow
         [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     }
 
     for ($i = 0; $i -lt $clickPoints.Count; $i++) {
         $point = $clickPoints[$i]
-        Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Tap $($i + 1): ($($point.X), $($point.Y))"
+        Write-Host "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Clicking $($ClickLabels[$i]): ($($point.X), $($point.Y))"
         Invoke-Adb @('shell', 'input', 'tap', [string]$point.X, [string]$point.Y)
         if ($i -eq 0) {
-            Write-Host 'Waiting 3 seconds before Click 2...'
+            Write-Host 'Waiting 3 seconds before clicking World/Castle View Button...'
             Start-Sleep -Seconds 3
         }
     }
