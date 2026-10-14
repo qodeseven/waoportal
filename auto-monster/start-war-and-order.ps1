@@ -188,6 +188,25 @@ while ($true) {
     $firstCycle = $false
     $startedBlueStacks = $false
     $finishedAt = Get-Date
-    Write-Host "[$($finishedAt.ToString('yyyy-MM-dd HH:mm:ss'))] Waiting $IntervalHours hour(s) to restart monsters."
-    Start-Sleep -Milliseconds ([int64]($IntervalHours * 3600000))
+    $waitUntil = $finishedAt.AddMilliseconds([int64]($IntervalHours * 3600000))
+    $timestamp = $finishedAt.ToString('yyyy-MM-dd HH:mm:ss')
+
+    do {
+        $remaining = $waitUntil - (Get-Date)
+        if ($remaining.TotalSeconds -lt 0) {
+            $remaining = [TimeSpan]::Zero
+        }
+
+        $secondsRemaining = [int][Math]::Ceiling($remaining.TotalSeconds)
+        $countdown = [TimeSpan]::FromSeconds($secondsRemaining)
+        $hours = [int][Math]::Floor($countdown.TotalHours)
+        $countdownText = '{0:00}:{1:00}:{2:00}' -f $hours, $countdown.Minutes, $countdown.Seconds
+        Write-Host -NoNewline "`r[$timestamp] Waiting $countdownText to restart monsters."
+
+        if ($secondsRemaining -gt 0) {
+            Start-Sleep -Seconds 1
+        }
+    } while ($secondsRemaining -gt 0)
+
+    Write-Host
 }

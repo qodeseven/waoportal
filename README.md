@@ -53,7 +53,7 @@ The defaults are 1080x1920: **Monster Menu Button** `(1009,1520)`, **World/Castl
 
 ## Override settings
 
-All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is in hours and may be fractional, from about one minute to one week. For a 10-minute wait between cycles, pass `-IntervalHours 0.1667`.
+All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is in hours and may be fractional, from about one minute to one week. For a 10-minute wait between cycles, pass `-IntervalHours 0.1667`. While waiting, the script shows a live `HH:MM:SS` countdown.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1 `
