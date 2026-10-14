@@ -2,7 +2,7 @@
 param(
     [string] $BlueStacksDir = 'C:\Program Files\BlueStacks_nxt',
 
-    [ValidateRange(1, 168)]
+    [ValidateRange(0.0167, 168)]
     [double] $IntervalHours = 1,
 
     [ValidatePattern('^\d+x\d+$')]

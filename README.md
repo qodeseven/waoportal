@@ -45,7 +45,7 @@ A Mac user can install BlueStacks Air and War and Order to inspect or manually v
 
 ## Run with defaults
 
-The defaults are 1080x1920: **Monster Menu Button** `(1009,1520)`, **World/Castle View Button** `(114,1821)`, and **Auto Monster Start Button** `(540,1580)`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. On the first cycle, if the script started BlueStacks, close any splash, promotion, or purchase screens and press a key at the prompt; it clicks the World/Castle View Button first, waits 10 seconds, then performs Clicks 1–3. If BlueStacks was already running, the script asks you to change to World/Castle View and press a key, then performs Clicks 1–3. It announces and waits 3 seconds before clicking the World/Castle View Button. Every hourly cycle after the first uses only Click 2 (World/Castle View Button) and Click 3 (Auto Monster Start Button). The timestamped status message says it is waiting to restart monsters. Press **Ctrl+C** to stop.
+The defaults are 1080x1920: **Monster Menu Button** `(1009,1520)`, **World/Castle View Button** `(114,1821)`, and **Auto Monster Start Button** `(540,1580)`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. On the first cycle, if the script started BlueStacks, close any splash, promotion, or purchase screens and press a key at the prompt; it clicks the World/Castle View Button first, waits 10 seconds, then performs Clicks 1–3. If BlueStacks was already running, the script asks you to change to World/Castle View and press a key, then performs Clicks 1–3. It announces and waits 3 seconds before clicking the World/Castle View Button. Each repeat cycle uses only Click 2 (World/Castle View Button) and Click 3 (Auto Monster Start Button). The timestamped status message says it is waiting to restart monsters. Press **Ctrl+C** to stop.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1
@@ -53,7 +53,7 @@ The defaults are 1080x1920: **Monster Menu Button** `(1009,1520)`, **World/Castl
 
 ## Override settings
 
-All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is in hours and may be fractional.
+All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is in hours and may be fractional, from about one minute to one week. For a 10-minute wait between cycles, pass `-IntervalHours 0.1667`.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1 `
