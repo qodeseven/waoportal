@@ -35,6 +35,14 @@ The script does not require administrator privileges. The default BlueStacks fol
 
 People who already use Git can optionally clone the project with `git clone https://github.com/qodeseven/waoportal.git`.
 
+## Apple Mac users
+
+This PowerShell script is for **Windows and BlueStacks 5**. It calls Windows-only files (`HD-Adb.exe` and `HD-Player.exe`) from a Windows install path, so it will not run on macOS as written.
+
+BlueStacks Air is BlueStacks' Mac option for Apple Silicon. BlueStacks lists an M1–M4 chip and at least 8 GB RAM as minimum requirements; 16 GB RAM is recommended. See [BlueStacks Air installation, requirements, and game setup](https://support.bluestacks.com/hc/en-us/articles/32272892398093-How-to-install-and-play-games-with-BlueStacks-Air-on-Mac).
+
+A Mac user can install BlueStacks Air and War and Order to inspect or manually verify the game screens. The current official BlueStacks Air instructions do not document an ADB enable/connect workflow, so this project does not yet include a Mac automation script. To test the automated taps, use a Windows PC with BlueStacks 5 and follow the Windows instructions above. A separate Mac version would need a confirmed ADB connection method for BlueStacks Air first.
+
 ## Run with defaults
 
 The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. The script waits 60 seconds after launching the game and waits one hour after each completed cycle. Press **Ctrl+C** to stop.
