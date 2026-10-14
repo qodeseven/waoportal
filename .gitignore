@@ -1,0 +1,3 @@
+# Runtime logs and captures should not be committed.
+*.log
+*.capture.png
