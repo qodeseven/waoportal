@@ -58,7 +58,7 @@ function Invoke-Adb([string[]] $Arguments) {
         if ($adbOutput) {
             $details = "`n" + ($adbOutput -join [Environment]::NewLine)
         }
-        throw "ADB command failed with exit code $adbExitCode: $($Arguments -join ' ')$details"
+        throw "ADB command failed with exit code ${adbExitCode}: $($Arguments -join ' ')$details"
     }
     if ($script:VerboseOutput -and $adbOutput) {
         Write-Host ($adbOutput -join [Environment]::NewLine)
