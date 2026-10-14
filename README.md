@@ -45,7 +45,7 @@ A Mac user can install BlueStacks Air and War and Order to inspect or manually v
 
 ## Run with defaults
 
-The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. If the script had to start BlueStacks, it then pauses for you to close any splash, promotion, or purchase screens. Type `CONTINUE` only after the normal game screen is visible; any other response stops without tapping. After each completed tap sequence, it waits one hour before the next cycle. Press **Ctrl+C** to stop.
+The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. If the script had to start BlueStacks, it then pauses for you to close any splash, promotion, or purchase screens. Press any key only after the normal game screen is visible. After each completed tap sequence, it waits one hour before the next cycle. Press **Ctrl+C** to stop.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1

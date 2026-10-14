@@ -147,11 +147,10 @@ while ($true) {
 
     if ($startedBlueStacks) {
         Write-Host ''
-        Write-Host 'Close any game splash screens, promotions, or purchase screens before continuing.' -ForegroundColor Yellow
-        $confirmation = Read-Host 'When the normal game screen is visible, type CONTINUE to perform the taps (anything else stops)'
-        if ($confirmation -cne 'CONTINUE') {
-            throw 'Startup confirmation was not given. No taps were performed.'
-        }
+        Write-Host 'Close any game splash screens, promotions, or purchase screens before continuing.' -ForegroundColor DarkYellow
+        Write-Host 'When the normal game screen is visible, press any key to perform the taps.' -ForegroundColor DarkYellow -NoNewline
+        [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        Write-Host ''
         $startedBlueStacks = $false
     }
 
