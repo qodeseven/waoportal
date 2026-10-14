@@ -55,6 +55,14 @@ The defaults are 1080x1920: **Monster Menu Button** `(1009,1520)`, **World/Castl
 
 All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is in hours and may be fractional, from about one minute to one week. For a 10-minute wait between cycles, pass `-IntervalHours 0.1667`. While waiting, the script shows a live `HH:MM:SS` countdown.
 
+Routine ADB diagnostic output is hidden by default. Add `-v` to show it:
+
+```powershell
+& .\auto-monster\start-war-and-order.ps1 -v
+```
+
+The script sets Android's internal display size to `1080x1920` by default and verifies it before tapping. Resizing the outer BlueStacks window does not change the Android tap coordinate system, so the saved click points continue to work as long as Android's internal size and the game layout remain the same. If you change `-ScreenSize`, use coordinates calibrated for that size with `-Click1`, `-Click2`, and `-Click3`.
+
 ```powershell
 & .\auto-monster\start-war-and-order.ps1 `
   -IntervalHours 0.5 `

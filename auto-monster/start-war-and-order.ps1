@@ -25,10 +25,14 @@ param(
     [int] $GameStartupTimeoutSeconds = 180,
 
     [ValidateRange(1, 30)]
-    [int] $PollIntervalSeconds = 5
+    [int] $PollIntervalSeconds = 5,
+
+    [Alias('v')]
+    [switch] $VerboseOutput
 )
 
 $ErrorActionPreference = 'Stop'
+$script:VerboseOutput = [bool]$VerboseOutput
 
 $Adb = Join-Path $BlueStacksDir 'HD-Adb.exe'
 $Player = Join-Path $BlueStacksDir 'HD-Player.exe'
@@ -47,9 +51,17 @@ function Convert-ClickPoint([string] $Value, [string] $Name) {
 }
 
 function Invoke-Adb([string[]] $Arguments) {
-    & $script:Adb @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "ADB command failed: $($Arguments -join ' ')"
+    $adbOutput = & $script:Adb @Arguments 2>&1
+    $adbExitCode = $LASTEXITCODE
+    if ($adbExitCode -ne 0) {
+        $details = ''
+        if ($adbOutput) {
+            $details = "`n" + ($adbOutput -join [Environment]::NewLine)
+        }
+        throw "ADB command failed with exit code $adbExitCode: $($Arguments -join ' ')$details"
+    }
+    if ($script:VerboseOutput -and $adbOutput) {
+        Write-Host ($adbOutput -join [Environment]::NewLine)
     }
 }
 
