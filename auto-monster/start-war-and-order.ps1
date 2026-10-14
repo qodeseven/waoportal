@@ -21,8 +21,11 @@ param(
     [Alias('Click-3')]
     [string] $Click3 = '540x1580',
 
-    [ValidateRange(0, 600)]
-    [int] $StartupWaitSeconds = 60
+    [ValidateRange(30, 900)]
+    [int] $GameStartupTimeoutSeconds = 180,
+
+    [ValidateRange(1, 30)]
+    [int] $PollIntervalSeconds = 5
 )
 
 $ErrorActionPreference = 'Stop'
@@ -43,6 +46,30 @@ function Invoke-Adb([string[]] $Arguments) {
     if ($LASTEXITCODE -ne 0) {
         throw "ADB command failed: $($Arguments -join ' ')"
     }
+}
+
+function Wait-ForGameForeground {
+    $deadline = (Get-Date).AddSeconds($script:GameStartupTimeoutSeconds)
+    $packagePattern = [regex]::Escape($script:GamePackage)
+    $foregroundPattern = '(?im)(?:mResumedActivity|topResumedActivity)\s*[:=][^\r\n]*' + $packagePattern
+    $lastForegroundLine = '(no resumed activity line found)'
+
+    Write-Host "Waiting for War and Order to appear in the foreground (checking every $($script:PollIntervalSeconds) seconds; timeout $($script:GameStartupTimeoutSeconds) seconds)..."
+    while ((Get-Date) -lt $deadline) {
+        $activityLines = & $script:Adb shell dumpsys activity activities 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $activityDump = $activityLines -join "`n"
+            $lastForeground = $activityDump -split "`n" | Where-Object { $_ -match '(?i)(mResumedActivity|topResumedActivity)' } | Select-Object -Last 1
+            if ($lastForeground) { $lastForegroundLine = $lastForeground.Trim() }
+            if ($activityDump -match $foregroundPattern) {
+                Write-Host 'War and Order is reported as the foreground Android activity.'
+                return
+            }
+        }
+        Start-Sleep -Seconds $script:PollIntervalSeconds
+    }
+
+    throw "War and Order did not appear in the foreground within $($script:GameStartupTimeoutSeconds) seconds. Stopping before taps. Last activity status: $lastForegroundLine"
 }
 
 if (-not (Test-Path -LiteralPath $Adb)) {
@@ -112,12 +139,9 @@ while ($true) {
         throw "Screen size check failed; stopping before taps. ADB reported: $reportedSize"
     }
 
-    # Launch (or bring forward) the game, then allow it to load on the first cycle.
+    # Launch (or bring forward) the game, then poll until Android reports it foreground.
     Invoke-Adb @('shell', 'monkey', '-p', $GamePackage, '-c', 'android.intent.category.LAUNCHER', '1')
-    if ($StartupWaitSeconds -gt 0) {
-        Write-Host "Waiting $StartupWaitSeconds seconds for the game to load..."
-        Start-Sleep -Seconds $StartupWaitSeconds
-    }
+    Wait-ForGameForeground
 
     for ($i = 0; $i -lt $clickPoints.Count; $i++) {
         $point = $clickPoints[$i]

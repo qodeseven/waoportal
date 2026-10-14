@@ -45,7 +45,7 @@ A Mac user can install BlueStacks Air and War and Order to inspect or manually v
 
 ## Run with defaults
 
-The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. The script waits 60 seconds after launching the game and waits one hour after each completed cycle. Press **Ctrl+C** to stop.
+The defaults are 1080x1920 and these tap points: `1009x1520`, `114x1821`, and `540x1580`. After launching the game, the script checks every 5 seconds for up to 3 minutes for Android to report War and Order as the foreground activity. If it does not, the script stops before tapping. After each completed tap sequence, it waits one hour before the next cycle. Press **Ctrl+C** to stop.
 
 ```powershell
 & .\auto-monster\start-war-and-order.ps1
@@ -65,13 +65,13 @@ All click points use `XxY`; the screen size uses `WIDTHxHEIGHT`. The interval is
   -Click3 '540x1580'
 ```
 
-To change the initial game load wait:
+To change the foreground polling timeout or polling interval:
 
 ```powershell
-& .\auto-monster\start-war-and-order.ps1 -StartupWaitSeconds 90
+& .\auto-monster\start-war-and-order.ps1 -GameStartupTimeoutSeconds 240 -PollIntervalSeconds 5
 ```
 
-The screen size is Android's coordinate space, not the outer Windows window dimensions. The script checks that each click falls inside the configured screen and stops if it cannot confirm the Android device, screen size, or installed package.
+The screen size is Android's coordinate space, not the outer Windows window dimensions. The script checks that each click falls inside the configured screen and stops if it cannot confirm the Android device, screen size, installed package, or foreground activity. The activity check confirms Android reports the game as foreground; it does not inspect screen pixels or prove that all game loading animations have finished.
 
 ## Observed screen sequence
 
