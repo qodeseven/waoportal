@@ -50,9 +50,19 @@ function Convert-ClickPoint([string] $Value, [string] $Name) {
     return @{ X = [int]$Matches[1]; Y = [int]$Matches[2] }
 }
 
-function Invoke-Adb([string[]] $Arguments) {
-    $adbOutput = & $script:Adb @Arguments 2>&1
-    $adbExitCode = $LASTEXITCODE
+function Invoke-Adb([string[]] $Arguments, [switch] $CaptureOutput) {
+    # Windows PowerShell 5.1 promotes native stderr to ErrorRecord objects.
+    # HD-Adb.exe writes harmless diagnostics there even when a command succeeds,
+    # so use Continue only for this native invocation and capture both streams.
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $adbOutput = @(& $script:Adb @Arguments 2>&1)
+        $adbExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
     if ($adbExitCode -ne 0) {
         $details = ''
         if ($adbOutput) {
@@ -63,6 +73,7 @@ function Invoke-Adb([string[]] $Arguments) {
     if ($script:VerboseOutput -and $adbOutput) {
         Write-Host ($adbOutput -join [Environment]::NewLine)
     }
+    if ($CaptureOutput) { return $adbOutput }
 }
 
 function Confirm-YesByDefault([string] $Prompt) {
@@ -90,15 +101,13 @@ function Wait-ForGameForeground {
 
     Write-Host "Waiting for War and Order to appear in the foreground (checking every $($script:PollIntervalSeconds) seconds; timeout $($script:GameStartupTimeoutSeconds) seconds)..."
     while ((Get-Date) -lt $deadline) {
-        $activityLines = & $script:Adb shell dumpsys activity activities 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            $activityDump = $activityLines -join "`n"
-            $lastForeground = $activityDump -split "`n" | Where-Object { $_ -match '(?i)(mResumedActivity|topResumedActivity)' } | Select-Object -Last 1
-            if ($lastForeground) { $lastForegroundLine = $lastForeground.Trim() }
-            if ($activityDump -match $foregroundPattern) {
-                Write-Host 'War and Order is reported as the foreground Android activity.'
-                return
-            }
+        $activityLines = Invoke-Adb @('shell', 'dumpsys', 'activity', 'activities') -CaptureOutput
+        $activityDump = $activityLines -join "`n"
+        $lastForeground = $activityDump -split "`n" | Where-Object { $_ -match '(?i)(mResumedActivity|topResumedActivity)' } | Select-Object -Last 1
+        if ($lastForeground) { $lastForegroundLine = $lastForeground.Trim() }
+        if ($activityDump -match $foregroundPattern) {
+            Write-Host 'War and Order is reported as the foreground Android activity.'
+            return
         }
         Start-Sleep -Seconds $script:PollIntervalSeconds
     }
@@ -140,7 +149,7 @@ Write-Host 'Waiting for the BlueStacks Android device...'
 $deadline = (Get-Date).AddMinutes(3)
 $deviceReady = $false
 while ((Get-Date) -lt $deadline) {
-    $deviceOutput = & $Adb devices 2>&1
+    $deviceOutput = Invoke-Adb @('devices') -CaptureOutput
     $deviceReady = [bool]($deviceOutput | Where-Object { $_ -match '^emulator-\d+\s+device$' })
     if ($deviceReady) { break }
     Start-Sleep -Seconds 2
@@ -152,15 +161,15 @@ if (-not $deviceReady) {
 # Set the Android coordinate space and verify it before any taps.
 Invoke-Adb @('shell', 'wm', 'size', $ScreenSize)
 Start-Sleep -Seconds 2
-$reportedSize = (& $Adb shell wm size 2>&1) -join ' '
-if ($LASTEXITCODE -ne 0 -or $reportedSize -notmatch [regex]::Escape($ScreenSize)) {
+$reportedSize = (Invoke-Adb @('shell', 'wm', 'size') -CaptureOutput | Out-String)
+if ($reportedSize -notmatch [regex]::Escape($ScreenSize)) {
     throw "Could not verify screen size '$ScreenSize'. ADB reported: $reportedSize"
 }
 Write-Host "Android screen size set to $ScreenSize."
 
 # Confirm the configured game package is installed.
-$installedPackage = (& $Adb shell pm list packages $GamePackage 2>&1) -join "`n"
-if ($LASTEXITCODE -ne 0 -or $installedPackage -notmatch [regex]::Escape("package:$GamePackage")) {
+$installedPackage = (Invoke-Adb @('shell', 'pm', 'list', 'packages', $GamePackage) -CaptureOutput | Out-String)
+if ($installedPackage -notmatch [regex]::Escape("package:$GamePackage")) {
     throw "Game package '$GamePackage' was not found. Find it with: HD-Adb.exe shell pm list packages | findstr /i camel"
 }
 
@@ -171,8 +180,8 @@ $firstCycle = $true
 while ($true) {
     # Reapply and verify resolution each cycle in case BlueStacks reset it.
     Invoke-Adb @('shell', 'wm', 'size', $ScreenSize)
-    $reportedSize = (& $Adb shell wm size 2>&1) -join ' '
-    if ($LASTEXITCODE -ne 0 -or $reportedSize -notmatch [regex]::Escape($ScreenSize)) {
+    $reportedSize = (Invoke-Adb @('shell', 'wm', 'size') -CaptureOutput | Out-String)
+    if ($reportedSize -notmatch [regex]::Escape($ScreenSize)) {
         throw "Screen size check failed; stopping before taps. ADB reported: $reportedSize"
     }
 
