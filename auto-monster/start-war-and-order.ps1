@@ -53,6 +53,23 @@ function Invoke-Adb([string[]] $Arguments) {
     }
 }
 
+function Confirm-YesByDefault([string] $Prompt) {
+    while ($true) {
+        $response = Read-Host "$Prompt [Y/n]"
+        if ([string]::IsNullOrWhiteSpace($response)) {
+            return $true
+        }
+
+        switch ($response.Trim().ToLowerInvariant()) {
+            'y' { return $true }
+            'yes' { return $true }
+            'n' { return $false }
+            'no' { return $false }
+            default { Write-Host 'Please enter Y or N.' -ForegroundColor Yellow }
+        }
+    }
+}
+
 function Wait-ForGameForeground {
     $deadline = (Get-Date).AddSeconds($script:GameStartupTimeoutSeconds)
     $packagePattern = [regex]::Escape($script:GamePackage)
@@ -164,8 +181,15 @@ while ($true) {
         Start-Sleep -Seconds 10
     }
     elseif ($firstCycle) {
-        Write-Host 'Change to World/Castle View. Press any key when ready to start' -ForegroundColor DarkYellow
-        [void]$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        if (-not (Confirm-YesByDefault 'Change to World/Castle View. Ready to start?')) {
+            Write-Host 'Stopped before clicking.'
+            break
+        }
+
+        if (-not (Confirm-YesByDefault 'Stamina is greater than 10?')) {
+            Write-Host 'Stopped before clicking.'
+            break
+        }
     }
 
     if ($firstCycle) {
