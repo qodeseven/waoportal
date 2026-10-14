@@ -94,9 +94,11 @@ foreach ($point in $clickPoints) {
 }
 
 # Start BlueStacks if it is not already open.
+$startedBlueStacks = $false
 if (-not (Get-Process -Name 'HD-Player' -ErrorAction SilentlyContinue)) {
     Write-Host 'Starting BlueStacks...'
     Start-Process -FilePath $Player
+    $startedBlueStacks = $true
 }
 
 # Wait for the BlueStacks Android instance to become available through ADB.
@@ -142,6 +144,16 @@ while ($true) {
     # Launch (or bring forward) the game, then poll until Android reports it foreground.
     Invoke-Adb @('shell', 'monkey', '-p', $GamePackage, '-c', 'android.intent.category.LAUNCHER', '1')
     Wait-ForGameForeground
+
+    if ($startedBlueStacks) {
+        Write-Host ''
+        Write-Host 'Close any game splash screens, promotions, or purchase screens before continuing.' -ForegroundColor Yellow
+        $confirmation = Read-Host 'When the normal game screen is visible, type CONTINUE to perform the taps (anything else stops)'
+        if ($confirmation -cne 'CONTINUE') {
+            throw 'Startup confirmation was not given. No taps were performed.'
+        }
+        $startedBlueStacks = $false
+    }
 
     for ($i = 0; $i -lt $clickPoints.Count; $i++) {
         $point = $clickPoints[$i]
